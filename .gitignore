@@ -31,10 +31,7 @@ pnpm-debug.log*
 # Python cache and bytecode
 __pycache__/
 *.py[cod]
-*$py.class
-
-# Django migration files (optional to commit or ignore)
-/**/migrations/*
+*$py.class   
 
 # Django static files (optional if you build frontend separately)
 /static/
