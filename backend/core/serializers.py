@@ -15,4 +15,6 @@ class UserSerializer(serializers.ModelSerializer):
 class WatchlistSerializer(serializers.ModelSerializer):
     class Meta:
         model = Watchlist
-        fields = ['id', 'ticker']
+        fields = ['id', 'user', 'ticker']
+        extra_kwargs = {'user': {'read_only': True}}
+        
