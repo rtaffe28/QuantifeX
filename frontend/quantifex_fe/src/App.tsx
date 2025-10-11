@@ -1,11 +1,20 @@
-import './App.css'
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import HomePage from "./pages/HomePage";
 
-function App() {
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <HomePage />,
+  },
+]);
 
+const App: React.FC = () => {
   return (
-    <>
-    </>
-  )
-}
+    <SidebarProvider>
+      <RouterProvider router={router} />
+    </SidebarProvider>
+  );
+};
 
-export default App
+export default App;
