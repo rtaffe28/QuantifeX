@@ -4,18 +4,17 @@ import {
   RouterProvider,
   Navigate,
 } from "react-router-dom";
-import { SidebarProvider } from "@/components/ui/sidebar";
 import HomePage from "@/pages/Home";
 import Login from "@/pages/Login";
+import CompoundInterestCalculator from "@/components/CompoundInterestCalculator";
 import Register from "@/pages/Register";
-import ProtectedRoute from "./components/ProtectedRoute";
 
-function Logout() {
+export function Logout() {
   localStorage.clear();
-  return <Navigate to="/login" replace />;
+  return <Navigate to="/" replace />;
 }
 
-function RegisterAndLogout() {
+export function RegisterAndLogout() {
   localStorage.clear();
   return <Register />;
 }
@@ -24,7 +23,14 @@ const router = createBrowserRouter([
   {
     path: "/",
     element: <HomePage />,
+    children: [
+      {
+        path: "/compound-interest-calculator",
+        element: <CompoundInterestCalculator />,
+      },
+    ],
   },
+
   {
     path: "/login",
     element: <Login />,
