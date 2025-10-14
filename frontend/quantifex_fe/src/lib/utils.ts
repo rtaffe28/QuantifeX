@@ -7,7 +7,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 // Auth utility functions
-export const clearAuthTokens = (): void => {
+export const clearLocalAuthTokens = (): void => {
   localStorage.removeItem(ACCESS_TOKEN);
   localStorage.removeItem(REFRESH_TOKEN);
 
@@ -20,15 +20,15 @@ export const clearAllLocalStorage = (): void => {
   window.dispatchEvent(new Event("tokenUpdate"));
 };
 
-export const getAccessToken = (): string | null => {
+export const getLocalAccessToken = (): string | null => {
   return localStorage.getItem(ACCESS_TOKEN);
 };
 
-export const getRefreshToken = (): string | null => {
+export const getLocalRefreshToken = (): string | null => {
   return localStorage.getItem(REFRESH_TOKEN);
 };
 
-export const setAuthTokens = (access: string, refresh: string): void => {
+export const setLocalAuthTokens = (access: string, refresh: string): void => {
   localStorage.setItem(ACCESS_TOKEN, access);
   localStorage.setItem(REFRESH_TOKEN, refresh);
 
@@ -44,15 +44,6 @@ export const isTokenExpired = (token: string): boolean => {
   }
 };
 
-export const getUsernameFromToken = (token: string): string | null => {
-  try {
-    const { username } = JSON.parse(atob(token.split(".")[1]));
-    return username || null;
-  } catch {
-    return null;
-  }
-};
-
 // Additional token utilities
 export const isValidToken = (token: string | null): boolean => {
   if (!token) return false;
@@ -65,14 +56,4 @@ export const getTokenPayload = (token: string): any | null => {
   } catch {
     return null;
   }
-};
-
-export const hasValidAccessToken = (): boolean => {
-  const token = getAccessToken();
-  return isValidToken(token);
-};
-
-export const hasValidRefreshToken = (): boolean => {
-  const token = getRefreshToken();
-  return isValidToken(token);
 };

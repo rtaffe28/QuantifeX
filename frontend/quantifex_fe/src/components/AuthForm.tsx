@@ -10,16 +10,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import AxiosInstance from "@/api/axios";
-import { ACCESS_TOKEN, REFRESH_TOKEN } from "@/constants";
-import type { LoginResponse } from "@/models/auth";
+import tokenService from "@/api/token";
+import { setLocalAuthTokens } from "@/lib/utils";
+import userService from "@/api/user";
 
 interface FormProps {
-  route: string;
   method: "login" | "register";
 }
 
-const Form: React.FC<FormProps> = ({ route, method }) => {
+const Form: React.FC<FormProps> = ({ method }) => {
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
@@ -36,14 +35,17 @@ const Form: React.FC<FormProps> = ({ route, method }) => {
     setError("");
 
     try {
-      const res = await AxiosInstance.post<LoginResponse>(route, {
-        username,
-        password,
-      });
+      let res;
+      if (method === "login") {
+        res = await tokenService.postToken(username, password);
+      } else if (method === "register") {
+        res = await userService.registerUser(username, password);
+      } else {
+        throw new Error("Invalid method");
+      }
 
       if (method === "login") {
-        localStorage.setItem(ACCESS_TOKEN, res.data.access);
-        localStorage.setItem(REFRESH_TOKEN, res.data.refresh);
+        setLocalAuthTokens(res.data.access, res.data.refresh);
         navigate("/");
       } else {
         navigate("/login");

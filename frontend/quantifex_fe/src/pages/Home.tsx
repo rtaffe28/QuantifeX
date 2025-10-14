@@ -1,17 +1,34 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Sidebar, SidebarProvider } from "@/components/ui/sidebar";
 import { useAuthCheck } from "@/hooks/useAuthCheck";
-import { clearAuthTokens } from "@/lib/utils";
+import { clearLocalAuthTokens } from "@/lib/utils";
+import userService from "@/api/user";
 
 const Home: React.FC = () => {
   const { isAuthenticated } = useAuthCheck();
   const navigate = useNavigate();
+  const [username, setUsername] = useState<string>("unknown");
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      userService
+        .getUser()
+        .then((user) => {
+          setUsername(user.username || "unknown");
+        })
+        .catch(() => {
+          setUsername("unknown");
+        });
+    }
+  }, [isAuthenticated]);
+
   const handleLogout = () => {
-    clearAuthTokens();
+    clearLocalAuthTokens();
     navigate("/");
   };
+
   return (
     <div className="flex h-screen">
       <SidebarProvider>
@@ -51,7 +68,7 @@ const Home: React.FC = () => {
                   <span className="text-xs text-muted-foreground">
                     Logged in as:
                   </span>
-                  <div className="font-medium truncate">{"User"}</div>
+                  <div className="font-medium truncate">{username}</div>
                 </div>
                 <Button
                   onClick={handleLogout}

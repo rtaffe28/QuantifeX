@@ -8,6 +8,8 @@ import HomePage from "@/pages/Home";
 import Login from "@/pages/Login";
 import CompoundInterestCalculator from "@/components/CompoundInterestCalculator";
 import Register from "@/pages/Register";
+import ProtectedRoute from "./components/ProtectedRoute";
+import WatchList from "./components/WatchList";
 
 export function Logout() {
   localStorage.clear();
@@ -27,6 +29,14 @@ const router = createBrowserRouter([
       {
         path: "/compound-interest-calculator",
         element: <CompoundInterestCalculator />,
+      },
+      {
+        path: "/watchlist",
+        element: (
+          <ProtectedRoute>
+            <WatchList />
+          </ProtectedRoute>
+        ),
       },
     ],
   },

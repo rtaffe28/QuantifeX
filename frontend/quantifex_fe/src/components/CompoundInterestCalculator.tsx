@@ -67,10 +67,8 @@ const CompoundInterestCalculator: React.FC = () => {
     ((finalData.total / inputs.initialAmount) ** (1 / inputs.years) - 1) * 100;
 
   const handleInputChange = (field: keyof CalculatorInputs, value: string) => {
-    // Don't convert empty string to 0 immediately
     const numValue = value === "" ? 0 : parseFloat(value);
 
-    // Only update if it's a valid number or empty (which becomes 0)
     if (value === "" || !isNaN(numValue)) {
       setInputs((prev) => ({ ...prev, [field]: numValue }));
     }
@@ -87,10 +85,6 @@ const CompoundInterestCalculator: React.FC = () => {
 
   const formatPercent = (percent: number) => {
     return `${percent.toFixed(1)}%`;
-  };
-
-  const getDisplayValue = (value: number, field: keyof CalculatorInputs) => {
-    return value === 0 ? "" : value.toString();
   };
 
   const CustomTooltip = ({ active, payload, label }: any) => {
@@ -148,10 +142,7 @@ const CompoundInterestCalculator: React.FC = () => {
                     <Input
                       id="initial"
                       type="number"
-                      value={getDisplayValue(
-                        inputs.initialAmount,
-                        "initialAmount"
-                      )}
+                      value={inputs.initialAmount.toString()}
                       onChange={(e) =>
                         handleInputChange("initialAmount", e.target.value)
                       }
@@ -167,10 +158,7 @@ const CompoundInterestCalculator: React.FC = () => {
                     <Input
                       id="yearly"
                       type="number"
-                      value={getDisplayValue(
-                        inputs.yearlyContribution,
-                        "yearlyContribution"
-                      )}
+                      value={inputs.yearlyContribution.toString()}
                       onChange={(e) =>
                         handleInputChange("yearlyContribution", e.target.value)
                       }
@@ -187,7 +175,7 @@ const CompoundInterestCalculator: React.FC = () => {
                       id="rate"
                       type="number"
                       step="0.1"
-                      value={getDisplayValue(inputs.annualRate, "annualRate")}
+                      value={inputs.annualRate.toString()}
                       onChange={(e) =>
                         handleInputChange("annualRate", e.target.value)
                       }
@@ -203,7 +191,7 @@ const CompoundInterestCalculator: React.FC = () => {
                     <Input
                       id="years"
                       type="number"
-                      value={getDisplayValue(inputs.years, "years")}
+                      value={inputs.years.toString()}
                       onChange={(e) =>
                         handleInputChange("years", e.target.value)
                       }

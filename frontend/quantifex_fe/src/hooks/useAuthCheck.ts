@@ -1,26 +1,22 @@
 import { useState, useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
-import AxiosInstance from "@/api/axios";
+import tokenService from "@/api/token";
+import type { JWTPayload } from "@/models/Auth";
 import { REFRESH_TOKEN, ACCESS_TOKEN } from "@/constants";
-import type { JWTPayload, TokenRefreshResponse } from "@/models/auth";
+import { getLocalRefreshToken } from "@/lib/utils";
 
 export const useAuthCheck = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
   const refreshToken = async (): Promise<boolean> => {
-    const refreshToken = localStorage.getItem(REFRESH_TOKEN);
+    const refreshToken = getLocalRefreshToken();
 
     if (!refreshToken) {
       return false;
     }
 
     try {
-      const res = await AxiosInstance.post<TokenRefreshResponse>(
-        "/token/refresh/",
-        {
-          refresh: refreshToken,
-        }
-      );
+      const res = await tokenService.postRefresh(refreshToken);
 
       if (res.status === 200 && res.data.access) {
         localStorage.setItem(ACCESS_TOKEN, res.data.access);
