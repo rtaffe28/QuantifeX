@@ -1,0 +1,1 @@
+\COPY core_stockticker (symbol, name) FROM 'data/seeds/company_tickers.csv' DELIMITER ';' CSV HEADER;

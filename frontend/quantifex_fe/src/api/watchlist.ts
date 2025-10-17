@@ -15,7 +15,7 @@ const addToWatchlist = async (ticker: string) => {
 };
 
 const deleteFromWatchlist = async (id: number) => {
-    const res = await axiosInstance.delete(`${ROUTE}/delete/${id}`);
+    const res = await axiosInstance.delete(`${ROUTE}/delete/${id}/`);
     return res;
 };
 

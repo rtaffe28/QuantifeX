@@ -1,6 +1,5 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Watchlist
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -11,10 +10,3 @@ class UserSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = User.objects.create_user(**validated_data)
         return user
-
-class WatchlistSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Watchlist
-        fields = ['id', 'user', 'ticker']
-        extra_kwargs = {'user': {'read_only': True}}
-        
