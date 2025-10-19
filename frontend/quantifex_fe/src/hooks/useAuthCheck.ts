@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
 import tokenService from "@/api/token";
-import type { JWTPayload } from "@/models/Auth";
 import { REFRESH_TOKEN, ACCESS_TOKEN } from "@/constants";
 import { getLocalRefreshToken } from "@/lib/utils";
 
@@ -40,8 +39,8 @@ export const useAuthCheck = () => {
     }
 
     try {
-      const decoded = jwtDecode<JWTPayload>(token);
-      const tokenExpiration = decoded.exp;
+      const decoded = jwtDecode(token);
+      const tokenExpiration = decoded.exp!;
       const now = Date.now() / 1000;
 
       if (tokenExpiration < now) {

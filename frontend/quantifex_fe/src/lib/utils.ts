@@ -1,10 +1,4 @@
-import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
 import { ACCESS_TOKEN, REFRESH_TOKEN } from "@/constants";
-
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
 
 // Auth utility functions
 export const clearLocalAuthTokens = (): void => {
