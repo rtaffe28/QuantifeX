@@ -41,41 +41,35 @@ const config = defineConfig({
           900: { value: "#171717" },
           950: { value: "#0a0a0a" },
         },
-        // Stock-specific colors
         positive: {
-          value: "#10b981", // green for gains
+          value: "#10b981",
         },
         negative: {
-          value: "#ef4444", // red for losses
+          value: "#ef4444",
         },
       },
     },
     semanticTokens: {
       colors: {
-        // Background colors
         bg: {
           default: { value: "{colors.gray.950}" },
           subtle: { value: "{colors.gray.900}" },
           muted: { value: "{colors.gray.800}" },
         },
-        // Text colors
         fg: {
           default: { value: "{colors.gray.50}" },
           muted: { value: "{colors.gray.400}" },
           subtle: { value: "{colors.gray.500}" },
         },
-        // Brand colors
         primary: {
           default: { value: "{colors.brand.500}" },
           emphasized: { value: "{colors.brand.400}" },
           fg: { value: "{colors.gray.950}" },
         },
-        // Border colors
         border: {
           default: { value: "{colors.gray.800}" },
           muted: { value: "{colors.gray.700}" },
         },
-        // Stock colors
         up: { value: "{colors.positive}" },
         down: { value: "{colors.negative}" },
       },

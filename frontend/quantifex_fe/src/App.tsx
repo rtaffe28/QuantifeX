@@ -5,6 +5,8 @@ import {
   Navigate,
 } from "react-router-dom";
 import HomePage from "@/pages/Home";
+import { LoginForm } from "@/components/LoginForm";
+import { RegisterForm } from "@/components/RegisterForm";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 const router = createBrowserRouter([
@@ -13,8 +15,12 @@ const router = createBrowserRouter([
     element: <HomePage />,
   },
   {
-    path: "/watchlist",
-    element: <HomePage />,
+    path: "/login",
+    element: <LoginForm />,
+  },
+  {
+    path: "/register",
+    element: <RegisterForm />,
   },
   {
     path: "*",

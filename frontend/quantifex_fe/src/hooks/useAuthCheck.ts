@@ -5,7 +5,7 @@ import { REFRESH_TOKEN, ACCESS_TOKEN } from "@/constants";
 import { getLocalRefreshToken } from "@/lib/utils";
 
 export const useAuthCheck = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
 
   const refreshToken = async (): Promise<boolean> => {
     const refreshToken = getLocalRefreshToken();
