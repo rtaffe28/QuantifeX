@@ -8,11 +8,18 @@ import HomePage from "@/pages/Home";
 import { LoginForm } from "@/components/LoginForm";
 import { RegisterForm } from "@/components/RegisterForm";
 import ProtectedRoute from "./components/ProtectedRoute";
+import { Autocomplete } from "./components/Autocomplete";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <HomePage />,
+    children: [
+      {
+        path: "/watchlist",
+        element: <Autocomplete />,
+      },
+    ],
   },
   {
     path: "/login",
