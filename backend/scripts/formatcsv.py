@@ -1,7 +1,7 @@
 import csv
 
-input_file = '../data/seeds/investment_company_tickers.csv'
-output_file = '../data/seeds/company_tickers1.csv'
+input_file = '../data/seeds/unformated_investment_company_tickers.csv'
+output_file = '../data/seeds/investment_company_tickers.csv'
 
 with open(input_file, 'r', encoding='utf-8') as infile, \
      open(output_file, 'w', encoding='utf-8', newline='') as outfile:
@@ -13,7 +13,7 @@ with open(input_file, 'r', encoding='utf-8') as infile, \
     
     for row in reader:
         ticker = row['Class Ticker'].strip()
-        name = row['Entity Name'].strip()
+        name = row['Series Name'].strip()
         
         if ticker:
             writer.writerow([ticker, name])

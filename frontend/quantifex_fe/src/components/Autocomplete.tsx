@@ -3,6 +3,7 @@ import Fuse from "fuse.js";
 import { Input, Box, Spinner } from "@chakra-ui/react";
 import { List, type RowComponentProps } from "react-window";
 import tickerService from "@/api/ticker";
+import debounce from "lodash.debounce";
 
 interface Item {
   name: string;
@@ -15,6 +16,11 @@ function RowComponent({
   style,
 }: RowComponentProps<{ results: Item[] }>) {
   const item = results[index];
+  const maxNameLength = 31;
+  const displayName =
+    item.name.length > maxNameLength
+      ? item.name.slice(0, maxNameLength) + "..."
+      : item.name;
   return (
     <Box
       key={item.symbol}
@@ -29,7 +35,7 @@ function RowComponent({
       style={style}
       cursor="pointer"
     >
-      <b>{item.symbol}</b> — {item.name}
+      <b>{item.symbol}</b> — {displayName}
     </Box>
   );
 }
@@ -60,16 +66,20 @@ export const Autocomplete: React.FC = () => {
   );
 
   useEffect(() => {
-    const handler = setTimeout(() => {
-      if (!query) {
+    const debouncedSearch = debounce((q: string) => {
+      if (!q) {
         setResults([]);
       } else {
-        const found = fuse.search(query, { limit: 50 }).map((r) => r.item);
+        const found = fuse.search(q, { limit: 50 }).map((r) => r.item);
         setResults(found);
       }
-    }, 100); // 200ms debounce
+    }, 300);
 
-    return () => clearTimeout(handler);
+    debouncedSearch(query);
+
+    return () => {
+      debouncedSearch.cancel();
+    };
   }, [query, fuse]);
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
