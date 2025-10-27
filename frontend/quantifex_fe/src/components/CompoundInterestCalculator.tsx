@@ -19,7 +19,6 @@ const toUSD = (val: number) => {
   return formatter.format(val);
 };
 
-// Custom tooltip component
 const CustomTooltip = (props: any) => (
   <Box bg="white" color="black" p={2} borderRadius="md" boxShadow="md">
     <Chart.Tooltip {...props} />
@@ -65,14 +64,7 @@ export const CompoundInterestCalculator: React.FC = () => {
       justify="center"
       bg="bg.default"
     >
-      <Box
-        p={8}
-        h="650px"
-        w="900px"
-        bg="bg.subtle"
-        borderRadius="lg"
-        shadow="lg"
-      >
+      <Box p={8} h="80%" w="70%" bg="bg.subtle" borderRadius="lg" shadow="lg">
         <Heading textAlign="center" mb={6}>
           Compound Interest Calculator
         </Heading>
@@ -81,10 +73,9 @@ export const CompoundInterestCalculator: React.FC = () => {
             <Text>Initial Account Value</Text>
             <Input
               mb={3}
-              placeholder="10000"
               value={initialValue}
               onChange={(e) => {
-                const val = e.target.value.replace(/[^0-9]/g, "");
+                const val = e.target.value.replace(/[^0-9.]/g, "");
                 setInitialValue(
                   val === "" || isNaN(Number(val)) ? 0 : parseFloat(val)
                 );
@@ -92,7 +83,6 @@ export const CompoundInterestCalculator: React.FC = () => {
             />
             <Text>Yearly Rate of Return</Text>
             <Input
-              placeholder="7"
               value={yearlyReturn}
               onChange={(e) => {
                 const val = e.target.value.replace(/[^0-9.]/g, "");
@@ -104,7 +94,6 @@ export const CompoundInterestCalculator: React.FC = () => {
             <Text>Yearly Contributions</Text>
             <Input
               mb={3}
-              placeholder="1000"
               value={yearlyContribution}
               onChange={(e) => {
                 const val = e.target.value.replace(/[^0-9]/g, "");
@@ -116,7 +105,6 @@ export const CompoundInterestCalculator: React.FC = () => {
             <Text>Years Compounding</Text>
             <Input
               mb={3}
-              placeholder="30"
               value={yearsCompounding}
               onChange={(e) => {
                 const val = e.target.value.replace(/[^0-9]/g, "");
@@ -126,7 +114,7 @@ export const CompoundInterestCalculator: React.FC = () => {
               }}
             />
           </Stack>
-          <Box minW="350px" maxW="500px" flex={1}>
+          <Box minW="350px" maxW="700px" flex={1}>
             <Chart.Root maxH="sm" chart={chart}>
               <AreaChart data={chart.data}>
                 <CartesianGrid
@@ -166,17 +154,14 @@ export const CompoundInterestCalculator: React.FC = () => {
             </Chart.Root>
           </Box>
         </Flex>
-        <Flex
-          verticalAlign={"top"}
-          justify="center"
-        >
+        <Flex verticalAlign={"top"} justify="center">
           <Box
             mt={5}
             p={4}
             bg="bg.muted"
             borderRadius="md"
             display="flex"
-            w="500px"
+            w="50%"
             flexDirection="column"
             alignItems="center"
           >
