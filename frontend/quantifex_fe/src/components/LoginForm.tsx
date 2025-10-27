@@ -9,6 +9,7 @@ import {
   Text,
   Container,
   Link,
+  InputGroup,
 } from "@chakra-ui/react";
 import tokenService from "@/api/token";
 import { setLocalAuthTokens } from "@/lib/utils";
@@ -16,6 +17,7 @@ import { setLocalAuthTokens } from "@/lib/utils";
 export const LoginForm: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
@@ -29,7 +31,7 @@ export const LoginForm: React.FC = () => {
       console.log("Login attempt:", { email, password });
 
       const res = await tokenService.postToken(email, password);
-      
+
       setLocalAuthTokens(res.data.access, res.data.refresh);
       navigate("/");
     } catch (err) {
@@ -94,19 +96,34 @@ export const LoginForm: React.FC = () => {
                 >
                   Password
                 </Text>
-                <Input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  required
-                  bg="bg.muted"
-                  borderColor="border.default"
-                  color="fg.default"
-                  _placeholder={{ color: "fg.muted" }}
-                  _hover={{ borderColor: "border.muted" }}
-                  _focus={{ borderColor: "primary.default" }}
-                />
+                <InputGroup
+                  endElement={
+                    <Button
+                      h="1.75rem"
+                      size="sm"
+                      variant="ghost"
+                      color="primary.default"
+                      _hover={{ bg: "primary.default", color: "white" }}
+                      onClick={() => setShowPassword((prev) => !prev)}
+                    >
+                      {showPassword ? "Hide" : "Show"}
+                    </Button>
+                  }
+                >
+                  <Input
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    required
+                    bg="bg.muted"
+                    borderColor="border.default"
+                    color="fg.default"
+                    _placeholder={{ color: "fg.muted" }}
+                    _hover={{ borderColor: "border.muted" }}
+                    _focus={{ borderColor: "primary.default" }}
+                  />
+                </InputGroup>
               </Box>
 
               {error && (

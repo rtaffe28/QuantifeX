@@ -7,8 +7,9 @@ import {
 import HomePage from "@/pages/Home";
 import { LoginForm } from "@/components/LoginForm";
 import { RegisterForm } from "@/components/RegisterForm";
+import { CompoundInterestCalculator } from "./components/CompoundInterestCalculator";
 import ProtectedRoute from "./components/ProtectedRoute";
-import { Autocomplete } from "./components/Autocomplete";
+import { Autocomplete } from "./components/StockAutocomplete";
 
 const router = createBrowserRouter([
   {
@@ -17,7 +18,16 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/watchlist",
-        element: <Autocomplete />,
+
+        element: (
+          <ProtectedRoute>
+            <Autocomplete />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/compound-interest-calculator",
+        element: <CompoundInterestCalculator />,
       },
     ],
   },

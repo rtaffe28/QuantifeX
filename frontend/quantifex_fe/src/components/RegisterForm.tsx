@@ -9,6 +9,7 @@ import {
   Text,
   Container,
   Link,
+  InputGroup,
 } from "@chakra-ui/react";
 import userService from "@/api/user";
 
@@ -16,6 +17,8 @@ export const RegisterForm: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
@@ -104,20 +107,35 @@ export const RegisterForm: React.FC = () => {
                 >
                   Password
                 </Text>
-                <Input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  required
-                  minLength={8}
-                  bg="bg.muted"
-                  borderColor="border.default"
-                  color="fg.default"
-                  _placeholder={{ color: "fg.muted" }}
-                  _hover={{ borderColor: "border.muted" }}
-                  _focus={{ borderColor: "primary.default" }}
-                />
+                <InputGroup
+                  endElement={
+                    <Button
+                      h="1.75rem"
+                      size="sm"
+                      variant="ghost"
+                      color="primary.default"
+                      _hover={{ bg: "primary.default", color: "white" }}
+                      onClick={() => setShowPassword((prev) => !prev)}
+                    >
+                      {showPassword ? "Hide" : "Show"}
+                    </Button>
+                  }
+                >
+                  <Input
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    required
+                    minLength={8}
+                    bg="bg.muted"
+                    borderColor="border.default"
+                    color="fg.default"
+                    _placeholder={{ color: "fg.muted" }}
+                    _hover={{ borderColor: "border.muted" }}
+                    _focus={{ borderColor: "primary.default" }}
+                  />
+                </InputGroup>
                 <Text fontSize="xs" color="fg.muted" mt={1}>
                   Must be at least 8 characters
                 </Text>
@@ -132,19 +150,34 @@ export const RegisterForm: React.FC = () => {
                 >
                   Confirm Password
                 </Text>
-                <Input
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="••••••••"
-                  required
-                  bg="bg.muted"
-                  borderColor="border.default"
-                  color="fg.default"
-                  _placeholder={{ color: "fg.muted" }}
-                  _hover={{ borderColor: "border.muted" }}
-                  _focus={{ borderColor: "primary.default" }}
-                />
+                <InputGroup
+                  endElement={
+                    <Button
+                      h="1.75rem"
+                      size="sm"
+                      variant="ghost"
+                      color="primary.default"
+                      _hover={{ bg: "primary.default", color: "white" }}
+                      onClick={() => setShowConfirmPassword((prev) => !prev)}
+                    >
+                      {showConfirmPassword ? "Hide" : "Show"}
+                    </Button>
+                  }
+                >
+                  <Input
+                    type={showConfirmPassword ? "text" : "password"}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="••••••••"
+                    required
+                    bg="bg.muted"
+                    borderColor="border.default"
+                    color="fg.default"
+                    _placeholder={{ color: "fg.muted" }}
+                    _hover={{ borderColor: "border.muted" }}
+                    _focus={{ borderColor: "primary.default" }}
+                  />
+                </InputGroup>
               </Box>
 
               {error && (

@@ -1,7 +1,7 @@
 import React from "react";
 import type { ReactNode } from "react";
-import { Navigate } from "react-router-dom";
 import { useAuthCheck } from "@/hooks/useAuthCheck";
+import { Box, Link, Text } from "@chakra-ui/react";
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -18,7 +18,15 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     );
   }
 
-  return isAuthenticated ? <>{children}</> : <Navigate to="/login" replace />;
+  return isAuthenticated ? (
+    <>{children}</>
+  ) : (
+    <Box>
+      <Text fontSize="md" textAlign="center" color="fg.muted">
+        Login to view this page. {" "}
+      </Text>
+    </Box>
+  );
 };
 
 export default ProtectedRoute;
