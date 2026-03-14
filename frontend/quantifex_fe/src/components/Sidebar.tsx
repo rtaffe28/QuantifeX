@@ -5,6 +5,7 @@ import { Box, VStack, Link } from "@chakra-ui/react";
 const navLinks = [
   { to: "/", label: "Home" },
   { to: "/watchlist", label: "Watchlist" },
+  { to: "/transactions", label: "Transactions" },
   {
     to: "/compound-interest-calculator",
     label: "Compound Interest Calculator",

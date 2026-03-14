@@ -7,6 +7,10 @@ dist/
 #db
 /data/db
 
+#claude
+.claude
+/plans
+
 # Logs
 *.log
 npm-debug.log*

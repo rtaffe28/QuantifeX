@@ -10,6 +10,7 @@ import { RegisterForm } from "@/components/RegisterForm";
 import { CompoundInterestCalculator } from "./components/CompoundInterestCalculator";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { Autocomplete } from "./components/StockAutocomplete";
+import { TransactionsTable } from "./components/TransactionsTable";
 
 const router = createBrowserRouter([
   {
@@ -22,6 +23,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <Autocomplete />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/transactions",
+        element: (
+          <ProtectedRoute>
+            <TransactionsTable />
           </ProtectedRoute>
         ),
       },
