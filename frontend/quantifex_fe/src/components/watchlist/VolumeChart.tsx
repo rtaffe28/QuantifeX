@@ -16,11 +16,17 @@ interface VolumeChartProps {
   priceHistory: PricePoint[];
 }
 
-const CustomTooltip = (props: any) => (
-  <Box bg="bg.panel" p={2} borderRadius="md" boxShadow="md">
-    <Chart.Tooltip {...props} />
-  </Box>
-);
+const CustomTooltip = ({ active, payload, label }: any) => {
+  if (!active || !payload?.length) return null;
+  return (
+    <Box bg="gray.900" color="gray.100" p={2} borderRadius="md" boxShadow="lg" fontSize="sm">
+      <Text fontWeight="bold" mb={1}>{label}</Text>
+      {payload.map((entry: any) => (
+        <Text key={entry.name}>{formatLargeNumber(entry.value)}</Text>
+      ))}
+    </Box>
+  );
+};
 
 export const VolumeChart: React.FC<VolumeChartProps> = ({ priceHistory }) => {
   const chart = useChart({
@@ -57,7 +63,6 @@ export const VolumeChart: React.FC<VolumeChartProps> = ({ priceHistory }) => {
             cursor={false}
             animationDuration={100}
             content={<CustomTooltip />}
-            formatter={(value: number) => formatLargeNumber(value)}
           />
           {chart.series.map((item) => (
             <Bar

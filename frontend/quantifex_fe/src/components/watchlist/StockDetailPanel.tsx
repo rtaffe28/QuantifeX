@@ -1,15 +1,16 @@
 import React, { useState, useMemo } from "react";
 import { Box, Text, Spinner, Flex } from "@chakra-ui/react";
-import type { StockDetail } from "@/models/StockDetail";
+import type { StockDetail, PricePoint } from "@/models/StockDetail";
 import { StockHeader } from "./StockHeader";
 import { KeyStatsGrid } from "./KeyStatsGrid";
 import { PriceHistoryChart, type TimeRange } from "./PriceHistoryChart";
 import { VolumeChart } from "./VolumeChart";
-import { EarningsChart } from "./EarningsChart";
+import { FinancialsChart } from "./FinancialsChart";
 
 interface StockDetailPanelProps {
   stockDetail: StockDetail | null;
   loading: boolean;
+  onTimeRangeChange?: (range: TimeRange) => void;
 }
 
 const TIME_RANGE_DAYS: Record<TimeRange, number> = {
@@ -17,24 +18,51 @@ const TIME_RANGE_DAYS: Record<TimeRange, number> = {
   "3M": 90,
   "6M": 180,
   "1Y": 365,
+  "5Y": 1825,
   ALL: Infinity,
 };
+
+// Max data points to render in the chart — keeps it snappy
+const MAX_POINTS = 300;
+
+function downsample(data: PricePoint[], maxPoints: number): PricePoint[] {
+  if (data.length <= maxPoints) return data;
+  const step = data.length / maxPoints;
+  const result: PricePoint[] = [];
+  for (let i = 0; i < maxPoints - 1; i++) {
+    result.push(data[Math.round(i * step)]);
+  }
+  // Always include the last point for accurate current price
+  result.push(data[data.length - 1]);
+  return result;
+}
 
 export const StockDetailPanel: React.FC<StockDetailPanelProps> = ({
   stockDetail,
   loading,
+  onTimeRangeChange,
 }) => {
   const [timeRange, setTimeRange] = useState<TimeRange>("1Y");
+
+  const handleTimeRangeChange = (range: TimeRange) => {
+    setTimeRange(range);
+    onTimeRangeChange?.(range);
+  };
 
   const filteredHistory = useMemo(() => {
     if (!stockDetail) return [];
     const days = TIME_RANGE_DAYS[timeRange];
-    if (days === Infinity) return stockDetail.price_history;
-    const cutoff = new Date();
-    cutoff.setDate(cutoff.getDate() - days);
-    return stockDetail.price_history.filter(
-      (p) => new Date(p.date) >= cutoff
-    );
+    let data: PricePoint[];
+    if (days === Infinity) {
+      data = stockDetail.price_history;
+    } else {
+      const cutoff = new Date();
+      cutoff.setDate(cutoff.getDate() - days);
+      data = stockDetail.price_history.filter(
+        (p) => new Date(p.date) >= cutoff
+      );
+    }
+    return downsample(data, MAX_POINTS);
   }, [stockDetail, timeRange]);
 
   if (loading) {
@@ -62,10 +90,13 @@ export const StockDetailPanel: React.FC<StockDetailPanelProps> = ({
       <PriceHistoryChart
         priceHistory={filteredHistory}
         timeRange={timeRange}
-        onTimeRangeChange={setTimeRange}
+        onTimeRangeChange={handleTimeRangeChange}
       />
       <VolumeChart priceHistory={filteredHistory} />
-      <EarningsChart earnings={stockDetail.earnings} />
+      <FinancialsChart
+        annual={stockDetail.annual_financials}
+        quarterly={stockDetail.quarterly_financials}
+      />
     </Box>
   );
 };

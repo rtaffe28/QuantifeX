@@ -12,7 +12,7 @@ import {
 import type { PricePoint } from "@/models/StockDetail";
 import { toUSD } from "@/lib/formatters";
 
-export type TimeRange = "1M" | "3M" | "6M" | "1Y" | "ALL";
+export type TimeRange = "1M" | "3M" | "6M" | "1Y" | "5Y" | "ALL";
 
 interface PriceHistoryChartProps {
   priceHistory: PricePoint[];
@@ -20,13 +20,19 @@ interface PriceHistoryChartProps {
   onTimeRangeChange: (range: TimeRange) => void;
 }
 
-const CustomTooltip = (props: any) => (
-  <Box bg="bg.panel" p={2} borderRadius="md" boxShadow="md">
-    <Chart.Tooltip {...props} />
-  </Box>
-);
+const CustomTooltip = ({ active, payload, label }: any) => {
+  if (!active || !payload?.length) return null;
+  return (
+    <Box bg="gray.900" color="gray.100" p={2} borderRadius="md" boxShadow="lg" fontSize="sm">
+      <Text fontWeight="bold" mb={1}>{label}</Text>
+      {payload.map((entry: any) => (
+        <Text key={entry.name}>{toUSD(entry.value)}</Text>
+      ))}
+    </Box>
+  );
+};
 
-const TIME_RANGES: TimeRange[] = ["1M", "3M", "6M", "1Y", "ALL"];
+const TIME_RANGES: TimeRange[] = ["1M", "3M", "6M", "1Y", "5Y", "ALL"];
 
 export const PriceHistoryChart: React.FC<PriceHistoryChartProps> = ({
   priceHistory,
@@ -83,7 +89,6 @@ export const PriceHistoryChart: React.FC<PriceHistoryChartProps> = ({
             cursor={false}
             animationDuration={100}
             content={<CustomTooltip />}
-            formatter={(value: number) => toUSD(value)}
           />
           {chart.series.map((item) => (
             <Area

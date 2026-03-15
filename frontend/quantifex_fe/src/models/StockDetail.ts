@@ -8,7 +8,12 @@ export interface EarningsReport {
   quarter: string;
   actual_eps: number | null;
   estimated_eps: number | null;
+}
+
+export interface FinancialPeriod {
+  period: string;
   revenue: number | null;
+  net_income: number | null;
 }
 
 export interface Volatility {
@@ -30,5 +35,7 @@ export interface StockDetail {
   fifty_two_week_low: number | null;
   price_history: PricePoint[];
   earnings: EarningsReport[];
+  annual_financials: FinancialPeriod[];
+  quarterly_financials: FinancialPeriod[];
   volatility: Volatility;
 }

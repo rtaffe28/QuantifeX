@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Flex, Box } from "@chakra-ui/react";
 import tickerService from "@/api/ticker";
 import watchlistService from "@/api/watchlist";
@@ -7,11 +7,24 @@ import type { WatchlistItem } from "@/models/WatchlistItem";
 import type { StockDetail } from "@/models/StockDetail";
 import { WatchlistSidebar } from "@/components/watchlist/WatchlistSidebar";
 import { StockDetailPanel } from "@/components/watchlist/StockDetailPanel";
+import type { TimeRange } from "@/components/watchlist/PriceHistoryChart";
 
 interface TickerItem {
   name: string;
   symbol: string;
 }
+
+const TIME_RANGE_PERIOD: Record<TimeRange, string> = {
+  "1M": "1y",
+  "3M": "1y",
+  "6M": "1y",
+  "1Y": "1y",
+  "5Y": "5y",
+  ALL: "max",
+};
+
+// Cache keyed by "SYMBOL:period"
+type DetailCache = Map<string, StockDetail>;
 
 const WatchlistPage: React.FC = () => {
   const [watchlist, setWatchlist] = useState<WatchlistItem[]>([]);
@@ -20,6 +33,7 @@ const WatchlistPage: React.FC = () => {
   const [selectedTicker, setSelectedTicker] = useState<string | null>(null);
   const [stockDetail, setStockDetail] = useState<StockDetail | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
+  const cacheRef = useRef<DetailCache>(new Map());
 
   const fetchWatchlist = useCallback(async () => {
     const res = await watchlistService.getWatchlist();
@@ -39,18 +53,49 @@ const WatchlistPage: React.FC = () => {
     init();
   }, [fetchWatchlist]);
 
+  const fetchAndCache = useCallback(async (symbol: string, period: string) => {
+    const key = `${symbol}:${period}`;
+    const cached = cacheRef.current.get(key);
+    if (cached) return cached;
+    const res = await stockService.getStockDetail(symbol, period);
+    cacheRef.current.set(key, res.data);
+    return res.data;
+  }, []);
+
+  // Prefetch 5y and max in the background after initial 1y load
+  const prefetch = useCallback((symbol: string) => {
+    fetchAndCache(symbol, "5y").catch(() => {});
+    fetchAndCache(symbol, "max").catch(() => {});
+  }, [fetchAndCache]);
+
   const handleSelectTicker = useCallback(async (symbol: string) => {
     setSelectedTicker(symbol);
+    // Clear cache for previous ticker
+    cacheRef.current = new Map();
     setDetailLoading(true);
     try {
-      const res = await stockService.getStockDetail(symbol);
-      setStockDetail(res.data);
+      const data = await fetchAndCache(symbol, "1y");
+      setStockDetail(data);
+      // Kick off background prefetch for 5y and max
+      prefetch(symbol);
     } catch {
       setStockDetail(null);
     } finally {
       setDetailLoading(false);
     }
-  }, []);
+  }, [fetchAndCache, prefetch]);
+
+  const handleTimeRangeChange = useCallback(async (range: TimeRange) => {
+    if (!selectedTicker) return;
+    const period = TIME_RANGE_PERIOD[range];
+    if (period === "1y") return;
+    try {
+      const data = await fetchAndCache(selectedTicker, period);
+      setStockDetail(data);
+    } catch {
+      // keep existing data on failure
+    }
+  }, [selectedTicker, fetchAndCache]);
 
   const handleAddTicker = useCallback(
     async (symbol: string) => {
@@ -99,6 +144,7 @@ const WatchlistPage: React.FC = () => {
         <StockDetailPanel
           stockDetail={stockDetail}
           loading={detailLoading}
+          onTimeRangeChange={handleTimeRangeChange}
         />
       </Box>
     </Flex>
