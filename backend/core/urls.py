@@ -7,4 +7,5 @@ urlpatterns = [
     path('watchlist/delete/<int:pk>/', views.WatchlistDelete.as_view()),
     path('transactions/', views.TransactionsList.as_view()),
     path('transactions/delete/<int:pk>/', views.TransactionsDelete.as_view()),
+    path('stock/<str:symbol>/', views.StockDetailView.as_view()),
 ]

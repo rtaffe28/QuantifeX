@@ -9,8 +9,9 @@ import { LoginForm } from "@/components/LoginForm";
 import { RegisterForm } from "@/components/RegisterForm";
 import { CompoundInterestCalculator } from "./components/CompoundInterestCalculator";
 import ProtectedRoute from "./components/ProtectedRoute";
-import { Autocomplete } from "./components/StockAutocomplete";
+import WatchlistPage from "./pages/WatchlistPage";
 import { TransactionsTable } from "./components/TransactionsTable";
+import { LandingHero } from "./components/LandingHero";
 
 const router = createBrowserRouter([
   {
@@ -18,11 +19,15 @@ const router = createBrowserRouter([
     element: <HomePage />,
     children: [
       {
+        index: true,
+        element: <LandingHero />,
+      },
+      {
         path: "/watchlist",
 
         element: (
           <ProtectedRoute>
-            <Autocomplete />
+            <WatchlistPage />
           </ProtectedRoute>
         ),
       },
