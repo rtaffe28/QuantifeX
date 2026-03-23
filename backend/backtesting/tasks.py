@@ -1,29 +1,11 @@
-import sys
-import os
+import math
 from datetime import datetime
-
-# Ensure the backend directory is on the Python path so quant_models is importable
-_backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-if _backend_dir not in sys.path:
-    sys.path.insert(0, _backend_dir)
-
-try:
-    from celery import shared_task
-    _CELERY = True
-except ImportError:
-    _CELERY = False
-    def shared_task(fn):
-        fn.delay = fn
-        return fn
+from celery import shared_task
 
 
 @shared_task
 def execute_backtest(run_id):
-    import django
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "quantifex.settings")
-    django.setup()
-
-    from backtesting.models import BacktestRun, BacktestResult
+    from .models import BacktestRun, BacktestResult
 
     run = BacktestRun.objects.get(id=run_id)
     run.status = BacktestRun.STATUS_RUNNING
@@ -85,7 +67,6 @@ def execute_backtest(run_id):
         transactions_df = sim.get_transactions()
         stats = sim.print_performance_stats()
 
-        # Build equity curve from portfolio history DataFrame
         equity_curve = []
         if portfolio_history is not None and not portfolio_history.empty:
             value_col = _find_value_column(portfolio_history)
@@ -93,7 +74,6 @@ def execute_backtest(run_id):
                 date_str = str(date.date()) if hasattr(date, "date") else str(date)
                 equity_curve.append({"date": date_str, "value": round(float(row[value_col]), 2)})
 
-        # Build trade log from transactions DataFrame
         trade_log = []
         if transactions_df is not None and not transactions_df.empty:
             for _, row in transactions_df.iterrows():
@@ -104,17 +84,11 @@ def execute_backtest(run_id):
                         val = str(val.date())
                     elif hasattr(val, "item"):
                         val = val.item()
-                    else:
-                        try:
-                            import math
-                            if isinstance(val, float) and math.isnan(val):
-                                val = None
-                        except Exception:
-                            pass
+                    elif isinstance(val, float) and math.isnan(val):
+                        val = None
                     entry[col] = val
                 trade_log.append(entry)
 
-        # Extract scalar metrics from stats dict — keys may vary
         total_return_pct = _extract_pct(stats, ["total_return", "Total Return", "return"])
         annualized_return_pct = _extract_pct(
             stats, ["annualized_return", "annualized_volatility", "Annualized Return"]
@@ -122,7 +96,8 @@ def execute_backtest(run_id):
         max_drawdown_pct = _extract_pct(stats, ["max_drawdown", "Max Drawdown", "drawdown"])
         sharpe_ratio = float(stats.get("sharpe_ratio", stats.get("Sharpe Ratio", 0)) or 0)
         final_value = float(
-            stats.get("final_value", stats.get("final_portfolio_value", run.initial_capital)) or run.initial_capital
+            stats.get("final_value", stats.get("final_portfolio_value", run.initial_capital))
+            or run.initial_capital
         )
 
         BacktestResult.objects.create(
@@ -163,6 +138,5 @@ def _extract_pct(stats, keys):
         val = stats.get(k)
         if val is not None:
             f = float(val)
-            # Values < 2 are assumed to be decimals (e.g. 0.34 = 34%)
             return f * 100 if abs(f) < 2 else f
     return 0.0

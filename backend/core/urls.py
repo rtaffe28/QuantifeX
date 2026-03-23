@@ -8,4 +8,6 @@ urlpatterns = [
     path('transactions/', views.TransactionsList.as_view()),
     path('transactions/delete/<int:pk>/', views.TransactionsDelete.as_view()),
     path('stock/<str:symbol>/', views.StockDetailView.as_view()),
+    path('monte-carlo/simulate/', views.MonteCarloView.as_view()),
+    path('earnings-calendar/', views.EarningsCalendarView.as_view()),
 ]

@@ -20,13 +20,21 @@ const navSections: NavSection[] = [
       { to: "/", label: "Home" },
       { to: "/watchlist", label: "Watchlist" },
       { to: "/transactions", label: "Transactions" },
+      { to: "/earnings-calendar", label: "Earnings Calendar" },
+    ],
+  },
+  {
+    title: "Strategies",
+    links: [
       { to: "/backtesting", label: "Backtesting" },
     ],
   },
   {
     title: "Tools",
     links: [
+      { to: "/monte-carlo", label: "Monte Carlo" },
       { to: "/compound-interest-calculator", label: "Compound Interest Calculator" },
+      { to: "/kelly-criterion", label: "Kelly Criterion" },
     ],
   },
 ];

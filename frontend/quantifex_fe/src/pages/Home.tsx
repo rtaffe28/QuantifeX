@@ -28,7 +28,7 @@ const Home: React.FC = () => {
       <Header isAuthenticated={isAuthenticated} username={username} />
       <Flex flex={1} overflow="hidden">
         <Sidebar />
-        <Box height= "100%" width="100%">
+        <Box flex={1} overflowY="auto">
           <Outlet />
         </Box>
       </Flex>

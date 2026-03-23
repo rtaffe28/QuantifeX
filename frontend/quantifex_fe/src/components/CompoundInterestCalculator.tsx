@@ -57,14 +57,8 @@ export const CompoundInterestCalculator: React.FC = () => {
   });
 
   return (
-    <Flex
-      minH="100vh"
-      paddingTop={50}
-      verticalAlign={"top"}
-      justify="center"
-      bg="bg.default"
-    >
-      <Box p={8} h="80%" w="70%" bg="bg.subtle" borderRadius="lg" shadow="lg">
+    <Flex py={12} justify="center" bg="bg.default">
+      <Box p={8} w="70%" bg="bg.subtle" borderRadius="lg" shadow="lg">
         <Heading textAlign="center" mb={6}>
           Compound Interest Calculator
         </Heading>
