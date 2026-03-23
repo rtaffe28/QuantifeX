@@ -9,7 +9,7 @@ dist/
 
 #claude
 .claude
-/plans
+.plans
 
 # Logs
 *.log

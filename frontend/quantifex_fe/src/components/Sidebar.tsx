@@ -20,6 +20,7 @@ const navSections: NavSection[] = [
       { to: "/", label: "Home" },
       { to: "/watchlist", label: "Watchlist" },
       { to: "/transactions", label: "Transactions" },
+      { to: "/backtesting", label: "Backtesting" },
     ],
   },
   {

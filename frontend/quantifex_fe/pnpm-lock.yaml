@@ -99,6 +99,9 @@ importers:
       babel-plugin-react-compiler:
         specifier: ^19.1.0-rc.3
         version: 19.1.0-rc.3
+      baseline-browser-mapping:
+        specifier: ^2.10.10
+        version: 2.10.10
       eslint:
         specifier: ^9.36.0
         version: 9.37.0(jiti@2.6.1)
@@ -1842,8 +1845,9 @@ packages:
   barbe@2.2.1:
     resolution: {integrity: sha512-yx9qVTYLHqoglkWensOg8lBe/OPiFhcttEsQhs8d4tYvZoQbkGwDQ1R6I2uLijTCCylQXX4nIGVIlcaKf0fO4Q==}
 
-  baseline-browser-mapping@2.8.12:
-    resolution: {integrity: sha512-vAPMQdnyKCBtkmQA6FMCBvU9qFIppS3nzyXnEM+Lo2IAhG4Mpjv9cCxMudhgV3YdNNJv6TNqXy97dfRVL2LmaQ==}
+  baseline-browser-mapping@2.10.10:
+    resolution: {integrity: sha512-sUoJ3IMxx4AyRqO4MLeHlnGDkyXRoUG0/AI9fjK+vS72ekpV0yWVY7O0BVjmBcRtkNcsAO2QDZ4tdKKGoI6YaQ==}
+    engines: {node: '>=6.0.0'}
     hasBin: true
 
   bcp-47-match@1.0.3:
@@ -5458,7 +5462,7 @@ snapshots:
     dependencies:
       regex-escape: 3.4.11
 
-  baseline-browser-mapping@2.8.12: {}
+  baseline-browser-mapping@2.10.10: {}
 
   bcp-47-match@1.0.3: {}
 
@@ -5488,7 +5492,7 @@ snapshots:
 
   browserslist@4.26.3:
     dependencies:
-      baseline-browser-mapping: 2.8.12
+      baseline-browser-mapping: 2.10.10
       caniuse-lite: 1.0.30001748
       electron-to-chromium: 1.5.231
       node-releases: 2.0.23

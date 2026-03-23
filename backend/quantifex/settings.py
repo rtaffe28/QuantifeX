@@ -69,6 +69,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'drf_spectacular',
     'core',
+    'backtesting',
     'corsheaders'
 ]
 
@@ -167,3 +168,8 @@ SESSION_COOKIE_HTTPONLY = True
 
 # Polygon API Key (for your scripts)
 POLYGON_API_KEY = os.getenv('POLYGON_API_KEY')
+
+# Celery
+CELERY_BROKER_URL = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
+CELERY_RESULT_BACKEND = CELERY_BROKER_URL
+CELERY_TASK_ALWAYS_EAGER = os.getenv('CELERY_TASK_ALWAYS_EAGER', 'False').lower() == 'true'

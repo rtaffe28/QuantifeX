@@ -52,3 +52,7 @@ uritemplate==4.2.0
 urllib3==2.5.0
 websockets==15.0.1
 yfinance==0.2.66
+celery==5.4.0
+redis==5.2.1
+scipy==1.15.3
+setuptools>=70.0,<71.0

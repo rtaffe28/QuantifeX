@@ -12,6 +12,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import WatchlistPage from "./pages/WatchlistPage";
 import { TransactionsTable } from "./components/TransactionsTable";
 import { LandingHero } from "./components/LandingHero";
+import BacktestingPage from "./pages/BacktestingPage";
 
 const router = createBrowserRouter([
   {
@@ -36,6 +37,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <TransactionsTable />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/backtesting",
+        element: (
+          <ProtectedRoute>
+            <BacktestingPage />
           </ProtectedRoute>
         ),
       },
