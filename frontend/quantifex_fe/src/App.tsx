@@ -16,6 +16,7 @@ import { LandingHero } from "./components/LandingHero";
 import BacktestingPage from "./pages/BacktestingPage";
 import MonteCarloPage from "./pages/MonteCarloPage";
 import EarningsCalendarPage from "./pages/EarningsCalendarPage";
+import OptionsPricerPage from "./pages/OptionsPricerPage";
 
 const router = createBrowserRouter([
   {
@@ -74,6 +75,10 @@ const router = createBrowserRouter([
       {
         path: "/kelly-criterion",
         element: <KellyCriterionCalculator />,
+      },
+      {
+        path: "/options-pricer",
+        element: <OptionsPricerPage />,
       },
     ],
   },

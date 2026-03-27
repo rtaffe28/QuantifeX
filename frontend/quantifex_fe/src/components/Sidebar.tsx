@@ -33,6 +33,7 @@ const navSections: NavSection[] = [
     title: "Tools",
     links: [
       { to: "/monte-carlo", label: "Monte Carlo" },
+      { to: "/options-pricer", label: "Options Pricer" },
       { to: "/compound-interest-calculator", label: "Compound Interest Calculator" },
       { to: "/kelly-criterion", label: "Kelly Criterion" },
     ],
