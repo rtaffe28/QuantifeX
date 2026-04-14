@@ -11,4 +11,5 @@ urlpatterns = [
     path('monte-carlo/simulate/', views.MonteCarloView.as_view()),
     path('earnings-calendar/', views.EarningsCalendarView.as_view()),
     path('options/price/', views.OptionsPriceView.as_view()),
+    path('options/<str:symbol>/', views.OptionsAnalysisView.as_view()),
 ]

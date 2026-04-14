@@ -18,7 +18,8 @@ const navSections: NavSection[] = [
     title: "Portfolio",
     links: [
       { to: "/", label: "Home" },
-      { to: "/watchlist", label: "Watchlist" },
+      { to: "/watchlist", label: "Stocks" },
+      { to: "/options", label: "Options" },
       { to: "/transactions", label: "Transactions" },
       { to: "/earnings-calendar", label: "Earnings Calendar" },
     ],

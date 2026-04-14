@@ -6,4 +6,5 @@ from .stock_detail import StockDetailView
 from .monte_carlo import MonteCarloView
 from .earnings_calendar import EarningsCalendarView
 from .options_price import OptionsPriceView
+from .options_analysis import OptionsAnalysisView
 

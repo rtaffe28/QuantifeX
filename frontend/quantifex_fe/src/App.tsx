@@ -17,6 +17,7 @@ import BacktestingPage from "./pages/BacktestingPage";
 import MonteCarloPage from "./pages/MonteCarloPage";
 import EarningsCalendarPage from "./pages/EarningsCalendarPage";
 import OptionsPricerPage from "./pages/OptionsPricerPage";
+import OptionsPage from "./pages/OptionsPage";
 
 const router = createBrowserRouter([
   {
@@ -29,10 +30,17 @@ const router = createBrowserRouter([
       },
       {
         path: "/watchlist",
-
         element: (
           <ProtectedRoute>
             <WatchlistPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/options",
+        element: (
+          <ProtectedRoute>
+            <OptionsPage />
           </ProtectedRoute>
         ),
       },

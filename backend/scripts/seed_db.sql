@@ -4,7 +4,7 @@
 INSERT INTO auth_user (username, password, email, is_superuser, is_staff, is_active, first_name, last_name, date_joined)
 VALUES (
   'local@local.com',
-  'pbkdf2_sha256$1000000$brUNMRITfiLdIdMXh4MSPZ$VhZ1o8WtzO2YiXoLPRDUfu9FayGBXkFEZc9hSAD9efU=',
+  'pbkdf2_sha256$1000000$h943gRcJPpHUfqqhcXxo8j$EtSRNClGQ7gCKWA6WYE9FO3jG/kDHdKvthOij+mTv7k=',
   'local@local.com',
   FALSE,
   FALSE,

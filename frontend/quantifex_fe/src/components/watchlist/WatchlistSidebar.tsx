@@ -96,7 +96,7 @@ export const WatchlistSidebar: React.FC<WatchlistSidebarProps> = ({
   return (
     <Box h="100%" display="flex" flexDirection="column">
       <Text fontSize="lg" fontWeight="bold" color="fg.default" mb={3}>
-        Watchlist
+        Stocks
       </Text>
 
       {/* Search */}
