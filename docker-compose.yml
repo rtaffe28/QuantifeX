@@ -1,4 +1,5 @@
-version: '3.9'
+#version: '3.9'
+
 services:
   db:
     image: postgres:14-alpine
@@ -7,7 +8,7 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: postgres
     volumes:
-      - ./data/db:/var/lib/postgresql/data/
+      - postgres_data:/var/lib/postgresql/data/
     ports:
       - "5432:5432"
 
@@ -31,6 +32,9 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./frontend:/app/frontend
+      - ./frontend/quantifex_fe:/app/frontend
     depends_on:
       - backend
+
+volumes:
+  postgres_data:
