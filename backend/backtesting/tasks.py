@@ -12,12 +12,14 @@ def execute_backtest(run_id):
     run.save()
 
     try:
-        from quant_models.utils.simulation import BacktestSimulation
-        from quant_models.strategies.buy_and_hold_strategy import create_buy_and_hold_strategy
-        from quant_models.strategies.moving_average_strategy import create_sma_crossover_strategy
-        from quant_models.strategies.covered_call_strategy import create_covered_call_strategy
-        from quant_models.strategies.leap_strategy import create_leap_strategy
-        from quant_models.strategies.wheel_strategy import create_wheel_strategy
+        from .engine.simulation import BacktestSimulation
+        from .engine.strategies import (
+            create_buy_and_hold_strategy,
+            create_sma_crossover_strategy,
+            create_covered_call_strategy,
+            create_leap_strategy,
+            create_wheel_strategy,
+        )
 
         ticker = run.ticker.upper()
         params = run.parameters or {}
@@ -70,8 +72,10 @@ def execute_backtest(run_id):
         equity_curve = []
         if portfolio_history is not None and not portfolio_history.empty:
             value_col = _find_value_column(portfolio_history)
-            for date, row in portfolio_history.iterrows():
-                date_str = str(date.date()) if hasattr(date, "date") else str(date)
+            date_col = "date" if "date" in portfolio_history.columns else None
+            for idx, row in portfolio_history.iterrows():
+                date_val = row[date_col] if date_col else idx
+                date_str = str(date_val.date()) if hasattr(date_val, "date") else str(date_val)
                 equity_curve.append({"date": date_str, "value": round(float(row[value_col]), 2)})
 
         trade_log = []

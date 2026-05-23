@@ -1,3 +1,0 @@
-[submodule "backend/quant_models"]
-	path = backend/quant_models
-	url = https://github.com/rtaffe28/quantitative-trading-models
