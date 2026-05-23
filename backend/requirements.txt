@@ -56,3 +56,5 @@ celery==5.4.0
 redis==5.2.1
 scipy==1.15.3
 setuptools>=70.0,<71.0
+pytest==9.0.3
+pytest-django==4.12.0

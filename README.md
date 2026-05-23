@@ -71,3 +71,32 @@ QuantifeX/
 ```
 
 ---
+
+## 🧪 Tests
+
+### Backend (pytest)
+
+```bash
+cd backend
+../venv/bin/python -m pytest          # full suite
+../venv/bin/python -m pytest -k auth  # filter by name
+```
+
+Uses an in-memory SQLite override and mocks `yfinance` everywhere — no network
+calls, no Postgres needed.
+
+### Frontend (Vitest + React Testing Library)
+
+```bash
+cd frontend/quantifex_fe
+pnpm test            # one-shot
+pnpm test:watch      # watch mode
+```
+
+Vitest runs in jsdom with Chakra + Router providers; API services are mocked
+per test via `vi.mock`.
+
+End-to-end Playwright specs continue to live in `frontend/quantifex_fe/tests/e2e/`
+and run via `pnpm test:e2e`.
+
+---
