@@ -1,52 +1,73 @@
-import pandas as pd
 from datetime import timedelta
+
+import pandas as pd
+
+from ..base import ParamSpec, Strategy, StepContext
 from ..black_scholes import black_scholes_call
+from ..registry import register
 
 
-def create_covered_call_strategy(ticker, strike_factor=1.06, interest_rate=0.05, time_to_expiration=15/365):
-    """Factory: buy stock, then sell OTM calls against it for premium income."""
-    days = int(time_to_expiration * 365)
+@register
+class CoveredCall(Strategy):
+    slug = "covered_call"
+    name = "Covered Call"
+    description = "Buys stock then sells OTM call options to generate premium income."
+    parameters = [
+        ParamSpec("strike_factor", "Strike Factor (e.g. 1.06 = 6% OTM)", "number", 1.06, min=1.0),
+        ParamSpec("interest_rate", "Risk-Free Rate", "number", 0.05, min=0.0),
+        ParamSpec("days_to_expiration", "Days to Expiration", "integer", 15, min=1),
+    ]
 
-    def covered_call_strategy(date, portfolio, market_data, actions):
-        current_price = market_data['prices'][ticker]
+    def step(self, ctx: StepContext) -> None:
+        strike_factor = self.params["strike_factor"]
+        interest_rate = self.params["interest_rate"]
+        days = self.params["days_to_expiration"]
+        time_to_expiration = days / 365
 
-        max_shares = int(portfolio.cash / current_price)
+        price = ctx.market_data["prices"][self.ticker]
+
+        max_shares = int(ctx.portfolio.cash / price)
         if max_shares > 0:
-            actions.buy_stock(portfolio, ticker, max_shares, current_price)
+            ctx.actions.buy_stock(ctx.portfolio, self.ticker, max_shares, price)
 
-        if ticker in portfolio.positions and portfolio.positions[ticker].shares > 0:
-            has_active_call = any(opt.ticker == ticker and opt.option_type == 'call'
-                                  for opt in portfolio.options)
+        pos = ctx.portfolio.positions.get(self.ticker)
+        if not pos or pos.shares == 0:
+            return
 
-            if not has_active_call:
-                shares = portfolio.positions[ticker].shares
-                contracts = shares // 100
+        has_active_call = any(
+            opt.ticker == self.ticker and opt.option_type == "call"
+            for opt in ctx.portfolio.options
+        )
+        if has_active_call:
+            return
 
-                if contracts > 0:
-                    strike = current_price * strike_factor
-                    expiration = date + timedelta(days=days)
+        contracts = pos.shares // 100
+        if contracts == 0:
+            return
 
-                    if ticker in market_data['volatility']:
-                        vol_data = market_data['volatility'][ticker]
-                        if len(vol_data) > 0:
-                            vol = vol_data.iloc[-1, 0]
+        vol = _current_vol(ctx, self.ticker)
+        if vol is None:
+            return
 
-                            if not pd.isna(vol):
-                                premium = black_scholes_call(
-                                    S=current_price,
-                                    K=strike,
-                                    sigma=vol,
-                                    r=interest_rate,
-                                    t=time_to_expiration,
-                                )
+        strike = price * strike_factor
+        expiration = ctx.date + timedelta(days=days)
+        premium = black_scholes_call(S=price, K=strike, sigma=vol, r=interest_rate, t=time_to_expiration)
 
-                                actions.sell_call(
-                                    portfolio=portfolio,
-                                    ticker=ticker,
-                                    strike=strike,
-                                    expiration=expiration,
-                                    contracts=contracts,
-                                    premium=premium,
-                                )
+        ctx.actions.sell_call(
+            portfolio=ctx.portfolio,
+            ticker=self.ticker,
+            strike=strike,
+            expiration=expiration,
+            contracts=contracts,
+            premium=premium,
+        )
 
-    return covered_call_strategy
+
+def _current_vol(ctx: StepContext, ticker: str) -> float | None:
+    if ticker not in ctx.market_data["volatility"]:
+        return None
+    vol_data = ctx.market_data["volatility"][ticker]
+    if len(vol_data) == 0:
+        return None
+    vol = vol_data.iloc[-1, 0]
+    return None if pd.isna(vol) else float(vol)

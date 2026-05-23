@@ -1,63 +1,59 @@
 import pandas as pd
 
+from ..base import ParamSpec, Strategy, StepContext
+from ..registry import register
 
-def create_sma_crossover_strategy(
-    ticker,
-    short_window=50,
-    long_window=200,
-    allocation=1.0,
-):
-    """Factory: SMA crossover.
-    BUY on Golden Cross (short crosses above long), SELL on Death Cross.
-    """
 
-    state = {
-        'prev_short_ma': None,
-        'prev_long_ma': None,
-        'position_entered': False,
-    }
+@register
+class SmaCrossover(Strategy):
+    slug = "sma_crossover"
+    name = "SMA Crossover"
+    description = "Buys on a golden cross (short SMA above long SMA) and sells on a death cross."
+    parameters = [
+        ParamSpec("short_window", "Short Window (days)", "integer", 50, min=1),
+        ParamSpec("long_window", "Long Window (days)", "integer", 200, min=2),
+        ParamSpec("allocation", "Allocation (0-1)", "number", 1.0, min=0.0, max=1.0),
+    ]
 
-    def sma_crossover(date, portfolio, market_data, actions):
-        current_price = float(market_data['prices'][ticker])
+    def step(self, ctx: StepContext) -> None:
+        short_window = self.params["short_window"]
+        long_window = self.params["long_window"]
+        allocation = self.params["allocation"]
 
-        if ticker not in market_data['data']:
+        if self.ticker not in ctx.market_data["data"]:
             return
 
-        hist_data = market_data['data'][ticker]
-
+        hist_data = ctx.market_data["data"][self.ticker]
         if len(hist_data) < long_window:
             return
 
-        prices = hist_data['Close']
+        prices = hist_data["Close"]
         short_ma = float(prices.rolling(window=short_window).mean().iloc[-1])
         long_ma = float(prices.rolling(window=long_window).mean().iloc[-1])
 
         if pd.isna(short_ma) or pd.isna(long_ma):
             return
 
-        if state['prev_short_ma'] is not None and state['prev_long_ma'] is not None:
+        current_price = float(ctx.market_data["prices"][self.ticker])
+        prev_short = self.state.get("prev_short")
+        prev_long = self.state.get("prev_long")
+        entered = self.state.get("entered", False)
 
-            if (state['prev_short_ma'] <= state['prev_long_ma'] and
-                short_ma > long_ma and
-                not state['position_entered']):
+        if prev_short is not None and prev_long is not None:
+            golden = prev_short <= prev_long and short_ma > long_ma
+            death = prev_short >= prev_long and short_ma < long_ma
 
-                available_cash = portfolio.cash * allocation
-                max_shares = int(available_cash / current_price)
+            if golden and not entered:
+                shares = int((ctx.portfolio.cash * allocation) / current_price)
+                if shares > 0:
+                    ctx.actions.buy_stock(ctx.portfolio, self.ticker, shares, current_price)
+                    self.state["entered"] = True
 
-                if max_shares > 0:
-                    actions.buy_stock(portfolio, ticker, max_shares, current_price)
-                    state['position_entered'] = True
+            elif death and entered:
+                pos = ctx.portfolio.positions.get(self.ticker)
+                if pos and pos.shares > 0:
+                    ctx.actions.sell_stock(ctx.portfolio, self.ticker, pos.shares, current_price)
+                    self.state["entered"] = False
 
-            elif (state['prev_short_ma'] >= state['prev_long_ma'] and
-                  short_ma < long_ma and
-                  state['position_entered']):
-
-                if ticker in portfolio.positions and portfolio.positions[ticker].shares > 0:
-                    shares = portfolio.positions[ticker].shares
-                    actions.sell_stock(portfolio, ticker, shares, current_price)
-                    state['position_entered'] = False
-
-        state['prev_short_ma'] = short_ma
-        state['prev_long_ma'] = long_ma
-
-    return sma_crossover
+        self.state["prev_short"] = short_ma
+        self.state["prev_long"] = long_ma

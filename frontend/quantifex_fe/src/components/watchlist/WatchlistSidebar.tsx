@@ -3,6 +3,7 @@ import Fuse from "fuse.js";
 import { Input, Box, Text, Flex, Spinner, IconButton } from "@chakra-ui/react";
 import { List, type RowComponentProps } from "react-window";
 import debounce from "lodash.debounce";
+import { FiX } from "react-icons/fi";
 import type { WatchlistItem } from "@/models/WatchlistItem";
 
 interface TickerItem {
@@ -168,40 +169,50 @@ export const WatchlistSidebar: React.FC<WatchlistSidebarProps> = ({
             Your watchlist is empty. Search for a ticker above to add one.
           </Text>
         )}
-        {watchlist.map((item) => (
-          <Flex
-            key={item.id}
-            align="center"
-            justify="space-between"
-            px={3}
-            py={2}
-            borderRadius="md"
-            cursor="pointer"
-            bg={selectedTicker === item.ticker ? "bg.muted" : "transparent"}
-            _hover={{ bg: "bg.muted" }}
-            onClick={() => onSelectTicker(item.ticker)}
-          >
-            <Text
-              fontSize="sm"
-              fontWeight={selectedTicker === item.ticker ? "bold" : "normal"}
-              color="fg.default"
-            >
-              {item.ticker}
-            </Text>
-            <IconButton
-              aria-label={`Remove ${item.ticker}`}
-              size="xs"
-              variant="ghost"
-              colorPalette="red"
-              onClick={(e) => {
-                e.stopPropagation();
-                onRemoveTicker(item.id);
+        {watchlist.map((item) => {
+          const isSelected = selectedTicker === item.ticker;
+          return (
+            <Flex
+              key={item.id}
+              align="center"
+              justify="space-between"
+              px={3}
+              py={2}
+              borderRadius="md"
+              cursor="pointer"
+              bg={isSelected ? "bg.muted" : "transparent"}
+              _hover={{
+                bg: "bg.muted",
+                "& [data-remove-btn]": { opacity: 1 },
               }}
+              onClick={() => onSelectTicker(item.ticker)}
             >
-              ✕
-            </IconButton>
-          </Flex>
-        ))}
+              <Text
+                fontSize="sm"
+                fontWeight={isSelected ? "bold" : "normal"}
+                color="fg.default"
+              >
+                {item.ticker}
+              </Text>
+              <IconButton
+                aria-label={`Remove ${item.ticker}`}
+                size="xs"
+                variant="ghost"
+                color="fg.muted"
+                data-remove-btn=""
+                opacity={isSelected ? 1 : 0}
+                transition="opacity 0.15s ease, color 0.15s ease"
+                _hover={{ color: "red.solid", bg: "transparent" }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onRemoveTicker(item.id);
+                }}
+              >
+                <FiX />
+              </IconButton>
+            </Flex>
+          );
+        })}
       </Box>
     </Box>
   );

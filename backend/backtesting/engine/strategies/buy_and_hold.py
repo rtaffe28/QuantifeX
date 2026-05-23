@@ -1,12 +1,19 @@
-def create_buy_and_hold_strategy(ticker):
-    """Factory: buy with all cash on first opportunity, hold to end."""
+from ..base import Strategy, StepContext
+from ..registry import register
 
-    def buy_and_hold(date, portfolio, market_data, actions):
-        current_price = market_data['prices'][ticker]
 
-        if ticker not in portfolio.positions or portfolio.positions[ticker].shares == 0:
-            max_shares = int(portfolio.cash / current_price)
-            if max_shares > 0:
-                actions.buy_stock(portfolio, ticker, max_shares, current_price)
+@register
+class BuyAndHold(Strategy):
+    slug = "buy_and_hold"
+    name = "Buy & Hold"
+    description = "Buys the stock on the first trading day and holds until the end date."
+    parameters = []
 
-    return buy_and_hold
+    def step(self, ctx: StepContext) -> None:
+        price = ctx.market_data["prices"][self.ticker]
+
+        existing = ctx.portfolio.positions.get(self.ticker)
+        if existing is None or existing.shares == 0:
+            shares = int(ctx.portfolio.cash / price)
+            if shares > 0:
+                ctx.actions.buy_stock(ctx.portfolio, self.ticker, shares, price)

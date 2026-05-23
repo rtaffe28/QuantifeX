@@ -52,7 +52,9 @@ class BacktestRunCreateSerializer(serializers.ModelSerializer):
         ]
 
     def validate_strategy(self, value):
-        valid = {"buy_and_hold", "sma_crossover", "covered_call", "leap", "wheel"}
+        from .engine.registry import all_slugs
+
+        valid = all_slugs()
         if value not in valid:
             raise serializers.ValidationError(
                 f"Invalid strategy. Choose from: {', '.join(sorted(valid))}"

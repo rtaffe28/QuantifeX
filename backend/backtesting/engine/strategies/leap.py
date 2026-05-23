@@ -1,104 +1,86 @@
-import pandas as pd
 from datetime import timedelta
+
+import pandas as pd
+
+from ..base import ParamSpec, Strategy, StepContext
 from ..black_scholes import black_scholes_call
+from ..registry import register
 
 
-def create_leap_strategy(ticker, strike_factor=1.1, days=365, interest_rate=0.05, roll_threshold=90):
-    """Factory: buy long-dated calls (LEAPs); roll within `roll_threshold` days of expiry."""
-    time = days / 365
+@register
+class Leap(Strategy):
+    slug = "leap"
+    name = "LEAP Strategy"
+    description = "Buys long-dated call options as a leveraged equity substitute."
+    parameters = [
+        ParamSpec("strike_factor", "Strike Factor (e.g. 1.1 = 10% OTM)", "number", 1.1),
+        ParamSpec("days", "Days to Expiry", "integer", 365, min=30),
+        ParamSpec("interest_rate", "Risk-Free Rate", "number", 0.05, min=0.0),
+        ParamSpec("roll_threshold", "Roll Threshold (days)", "integer", 90, min=1),
+    ]
 
-    def leap_strategy(date, portfolio, market_data, actions):
-        current_price = market_data['prices'][ticker]
+    def step(self, ctx: StepContext) -> None:
+        strike_factor = self.params["strike_factor"]
+        days = self.params["days"]
+        interest_rate = self.params["interest_rate"]
+        roll_threshold = self.params["roll_threshold"]
+        time = days / 365
 
-        has_active_leap = any(opt.ticker == ticker and
-                              opt.option_type == 'call' and
-                              opt.position == 'long'
-                              for opt in portfolio.options)
+        price = ctx.market_data["prices"][self.ticker]
+        vol = _current_vol(ctx, self.ticker)
+        if vol is None:
+            return
 
-        if not has_active_leap and portfolio.cash > 1000:
-            strike = current_price * strike_factor
-            expiration = date + timedelta(days=days)
+        has_active_leap = any(
+            opt.ticker == self.ticker and opt.option_type == "call" and opt.position == "long"
+            for opt in ctx.portfolio.options
+        )
 
-            if ticker in market_data['volatility']:
-                vol_data = market_data['volatility'][ticker]
-                if len(vol_data) > 0:
-                    vol = vol_data.iloc[-1, 0]
+        if not has_active_leap and ctx.portfolio.cash > 1000:
+            strike = price * strike_factor
+            expiration = ctx.date + timedelta(days=days)
+            premium = black_scholes_call(S=price, K=strike, sigma=vol, r=interest_rate, t=time)
+            max_contracts = int(ctx.portfolio.cash / (premium * 100))
+            if max_contracts > 0:
+                ctx.actions.buy_call(
+                    portfolio=ctx.portfolio, ticker=self.ticker, strike=strike,
+                    expiration=expiration, contracts=max_contracts, premium=premium,
+                )
 
-                    if not pd.isna(vol):
-                        premium = black_scholes_call(
-                            S=current_price,
-                            K=strike,
-                            sigma=vol,
-                            r=interest_rate,
-                            t=time,
-                        )
+        for opt in ctx.portfolio.options:
+            if not (opt.ticker == self.ticker and opt.option_type == "call" and opt.position == "long"):
+                continue
+            days_left = (opt.expiration_date - ctx.date).days
+            if not (0 < days_left < roll_threshold):
+                continue
 
-                        premium_per_contract = premium * 100
-                        max_contracts = int(portfolio.cash / premium_per_contract)
+            close_premium = black_scholes_call(
+                S=price, K=opt.strike, sigma=vol, r=interest_rate, t=days_left / 365,
+            )
+            ctx.actions.close_call(
+                portfolio=ctx.portfolio, ticker=self.ticker, strike=opt.strike,
+                expiration=opt.expiration_date, contracts=opt.contracts, premium=close_premium,
+            )
 
-                        if max_contracts > 0:
-                            actions.buy_call(
-                                portfolio=portfolio,
-                                ticker=ticker,
-                                strike=strike,
-                                expiration=expiration,
-                                contracts=max_contracts,
-                                premium=premium,
-                            )
+            new_strike = price * strike_factor
+            new_expiration = ctx.date + timedelta(days=days)
+            new_premium = black_scholes_call(
+                S=price, K=new_strike, sigma=vol, r=interest_rate, t=time,
+            )
+            max_new = int(ctx.portfolio.cash / (new_premium * 100))
+            if max_new > 0:
+                ctx.actions.buy_call(
+                    portfolio=ctx.portfolio, ticker=self.ticker, strike=new_strike,
+                    expiration=new_expiration, contracts=max_new, premium=new_premium,
+                )
+            break  # roll one position per step
 
-        for opt in portfolio.options:
-            if (opt.ticker == ticker and
-                opt.option_type == 'call' and
-                opt.position == 'long'):
-                days_to_expiration = (opt.expiration_date - date).days
 
-                if days_to_expiration < roll_threshold and days_to_expiration > 0:
-                    if ticker in market_data['volatility']:
-                        vol_data = market_data['volatility'][ticker]
-                        if len(vol_data) > 0:
-                            vol = vol_data.iloc[-1, 0]
-
-                            if not pd.isna(vol):
-                                current_premium = black_scholes_call(
-                                    S=current_price,
-                                    K=opt.strike,
-                                    sigma=vol,
-                                    r=interest_rate,
-                                    t=days_to_expiration / 365,
-                                )
-
-                                actions.close_call(
-                                    portfolio=portfolio,
-                                    ticker=ticker,
-                                    strike=opt.strike,
-                                    expiration=opt.expiration_date,
-                                    contracts=opt.contracts,
-                                    premium=current_premium,
-                                )
-
-                                new_strike = current_price * strike_factor
-                                new_expiration = date + timedelta(days=days)
-
-                                new_premium = black_scholes_call(
-                                    S=current_price,
-                                    K=new_strike,
-                                    sigma=vol,
-                                    r=interest_rate,
-                                    t=time,
-                                )
-
-                                new_premium_per_contract = new_premium * 100
-                                max_new_contracts = int(portfolio.cash / new_premium_per_contract)
-
-                                if max_new_contracts > 0:
-                                    actions.buy_call(
-                                        portfolio=portfolio,
-                                        ticker=ticker,
-                                        strike=new_strike,
-                                        expiration=new_expiration,
-                                        contracts=max_new_contracts,
-                                        premium=new_premium,
-                                    )
-                                break
-
-    return leap_strategy
+def _current_vol(ctx: StepContext, ticker: str) -> float | None:
+    if ticker not in ctx.market_data["volatility"]:
+        return None
+    vol_data = ctx.market_data["volatility"][ticker]
+    if len(vol_data) == 0:
+        return None
+    vol = vol_data.iloc[-1, 0]
+    return None if pd.isna(vol) else float(vol)

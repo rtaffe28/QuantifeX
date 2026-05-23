@@ -168,7 +168,7 @@ class BacktestSimulation:
             return pd.DataFrame()
         return pd.DataFrame(self.transactions)
 
-    def print_performance_stats(self) -> Dict:
+    def compute_performance_stats(self) -> Dict:
         if not self.history:
             return {}
 
